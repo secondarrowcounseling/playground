@@ -568,10 +568,10 @@
                                         className="w-full p-2.5 rounded-lg border text-sm focus:outline-none cursor-pointer"
                                         style={{ backgroundColor: m.warmWhite, borderColor: m.stone, color: m.darkForest }}
                                     >
-                                        <option value="menstrual">Menstrual Phase (Reset)</option>
-                                        <option value="follicular">Follicular Phase (Resilient)</option>
-                                        <option value="ovulatory">Ovulatory Phase (Peak)</option>
-                                        <option value="luteal">Luteal Phase (Protect)</option>
+                                        <option value="menstrual">Menstrual Phase</option>
+                                        <option value="follicular">Follicular Phase</option>
+                                        <option value="ovulatory">Ovulatory Phase</option>
+                                        <option value="luteal">Luteal Phase</option>
                                     </select>
                                 </div>
                             </div>
@@ -768,8 +768,8 @@
                                             const rightActive = activeData.context ? activeData.context.includes(pair.right) : false;
 
                                             return (
-                                                <div key={index} className="grid grid-cols-2 gap-2 p-2 rounded-lg bg-slate-100 border border-dashed border-slate-300">
-                                                    {/* Left Modifier Option (Usually Friction / High Burden) */}
+    						<div key={index} className="grid grid-cols-2 gap-2 p-2 rounded-lg border border-dashed" style={{ backgroundColor: m.warmWhite, borderColor: "rgba(189, 183, 162, 0.4)" }}>
+       						 {/* Left Modifier Option (Usually Friction / High Burden) */}
                                                     <button
                                                         onClick={() => selectMutualExclusiveContext(state.activeTab, activeData.context, pair.left, pair.right)}
                                                         className="py-2.5 px-2 text-center text-xs font-bold border rounded-lg transition-all"
