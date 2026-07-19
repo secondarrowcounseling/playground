@@ -6,7 +6,7 @@
     <title>Second Arrow Somatic Check-In</title>
     <!-- Tailwind CSS for clean layout utilities -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- React 18 & Babel for a native, unminified, highly editable browser experience -->
+    <!-- React 18 & Babel for a native, unminified experience -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -31,26 +31,43 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #6d7873; /* warmGrey */
         }
-        /* Style range sliders uniformly */
+        
+        /* Modern slider adjustments with cross-browser thumb styling */
         input[type="range"] {
             -webkit-appearance: none;
             appearance: none;
-            background: #bdb7a2;
-            height: 6px;
+            height: 8px;
             border-radius: 9999px;
             outline: none;
+            cursor: pointer;
         }
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
+            background: currentColor;
+            border: 2px solid #ffffff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
             cursor: pointer;
             transition: transform 0.1s ease;
         }
         input[type="range"]::-webkit-slider-thumb:active {
-            transform: scale(1.2);
+            transform: scale(1.25);
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: currentColor;
+            border: 2px solid #ffffff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+        input[type="range"]::-moz-range-thumb:active {
+            transform: scale(1.25);
         }
     </style>
 </head>
@@ -58,7 +75,6 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        /* STREAMING_CHUNK:Defining global design tokens... */
         const m = {
             forest: "#45735d",
             gold: "#ba945e",
@@ -82,23 +98,34 @@
             "Can't Turn Off Thoughts"
         ];
 
-        const contextOptions = [
-            { id: "solo_morning", label: "Solo Morning" },
-            { id: "coparent_morning", label: "Coparent Morning" },
-            { id: "high_buffer", label: "High Buffer Time" },
-            { id: "low_buffer", label: "Low Buffer Time" },
-            { id: "high_transition", label: "High Transition Pressure" },
-            { id: "low_transition", label: "Low Transition Pressure" },
-            { id: "high_anxiety", label: "High Anticipatory Anxiety" },
-            { id: "low_anxiety", label: "Low Anticipatory Anxiety" }
+        // Customized, Tab-Specific paired context configurations
+        const morningContextPairs = [
+            { type: "parenting", left: "Solo Morning", right: "Coparent Morning" },
+            { type: "buffer", left: "High Buffer Time", right: "Low Buffer Time" },
+            { type: "transition", left: "High Transition Pressure", right: "Low Transition Pressure" },
+            { type: "anxiety", left: "High Anticipatory Anxiety", right: "Low Anticipatory Anxiety" }
         ];
 
-        /* STREAMING_CHUNK:Defining clinical physical symptom dictionaries... */
+        const afternoonContextPairs = [
+            { type: "appointment", left: "Afternoon Appointment", right: "No Appointments" },
+            { type: "inertia", left: "High Autistic Inertia", right: "Low Autistic Inertia" },
+            { type: "buffer", left: "High Buffer Time", right: "Low Buffer Time" },
+            { type: "transition", left: "High Transition Pressure", right: "Low Transition Pressure" },
+            { type: "anxiety", left: "High Anticipatory Anxiety", right: "Low Anticipatory Anxiety" }
+        ];
+
+        const eveningContextPairs = [
+            { type: "transition", left: "Late Transition Start", right: "Early Transition Start" },
+            { type: "demands", left: "High Family Demands", right: "Low Family Demands" },
+            { type: "leaks", left: "High Fixation Leaks", right: "Low Fixation Leaks" },
+            { type: "sensory", left: "High Sensory Sensitivity", right: "Low Sensory Sensitivity" }
+        ];
+
         const physicalSymptomsDefs = [
             { id: "headache", label: "Headache", def: "A throbbing, tight, or dull pain in the head or neck area, indicating systemic tension, dehydration, or sensory overload." },
             { id: "fatigue", label: "Fatigue", def: "A deep, systemic lack of physical or mental energy that rest does not immediately fix; a feeling of running on empty." },
             { id: "drowsiness", label: "Drowsiness", def: "An active, heavy pull toward sleep during waking hours, making it difficult to keep your eyes open or stay alert." },
-            { id: "bloating", label: "Bloating", def: "An uncomfortable feeling of internal fullness, tightness, or swelling in the abdomen, often tied to digestive slowdowns under stress." },
+            { id: "bloating", label: "Bloating", def: "A uncomfortable feeling of internal fullness, tightness, or swelling in the abdomen, often tied to digestive slowdowns under stress." },
             { id: "gas", label: "Gas", def: "Accumulation of air in the digestive tract that causes localized pressure, sharp twinges, or physical discomfort." },
             { id: "trigger_points", label: "Trigger Points", def: "Hyper-irritable, painful knots in the muscle tissue that feel tender to the touch and can radiate ache to surrounding areas." },
             { id: "vulvar_throbbing", label: "Vulvar Throbbing", def: "A distinct, pulsing ache or localized pressure in the pelvic floor/vulvar region, often linked to pelvic congestion, hormonal shifts, or neural sensitivity." },
@@ -115,7 +142,6 @@
             { id: "physical_exhaustion_threshold", label: "Physical Exhaustion Threshold", def: "A heavy, lead-like sensation in the limbs where basic physical logistics require massive deliberate effort." }
         ];
 
-        /* STREAMING_CHUNK:Defining cognitive symptom definitions... */
         const cognitiveSymptomsDefs = [
             { id: "word_retrieval", label: "Word Retrieval Latency", def: "Difficulty finding specific words or terminology mid-sentence." },
             { id: "task_switching", label: "Task-Switching Friction", def: "High mental drag when shifting attention between activities or contexts." },
@@ -132,7 +158,6 @@
             { id: "auditory_fatigue", label: "Auditory Processing Fatigue", def: "Increased cognitive effort required to decipher and track spoken language." }
         ];
 
-        /* STREAMING_CHUNK:Defining emotional symptom definitions... */
         const emotionalSymptomsDefs = [
             { id: "hyperreactive_trigger", label: "Hyper-Reactive Trigger", def: "An immediate, intense emotional response to minor logistical interruptions or changes in plans." },
             { id: "irritability_undercurrent", label: "Irritability Undercurrent", def: "A low-level, persistent background friction where ordinary ambient sounds or demands feel grating." },
@@ -229,7 +254,6 @@
             }
         }
 
-        /* STREAMING_CHUNK:Constructing the App controller component... */
         function App() {
             const [state, setState] = React.useState(() => {
                 try {
@@ -264,7 +288,7 @@
             };
 
             const toggleArrayItem = (phase, field, item) => {
-                const arr = [...state[phase][field]];
+                const arr = [...(state[phase][field] || [])];
                 const idx = arr.indexOf(item);
                 if (idx > -1) {
                     arr.splice(idx, 1);
@@ -272,6 +296,20 @@
                     arr.push(item);
                 }
                 updateCheckin(phase, field, arr);
+            };
+
+            const selectMutualExclusiveContext = (phase, currentSel, targetSelect, partnerClear) => {
+                let contextArray = [...(state[phase].context || [])];
+                
+                // Clear the opposite option if selected
+                contextArray = contextArray.filter(x => x !== partnerClear);
+
+                if (contextArray.includes(targetSelect)) {
+                    contextArray = contextArray.filter(x => x !== targetSelect);
+                } else {
+                    contextArray.push(targetSelect);
+                }
+                updateCheckin(phase, "context", contextArray);
             };
 
             const setSymptomValue = (phase, category, symId, value) => {
@@ -306,7 +344,19 @@
             const getMotivationLabel = (val) => ["Aversion", "Obligation", "Willing", "Proactive", "Driven"][val - 1] || "Willing";
             const getFocusLabel = (val) => ["Highly Scattered", "Scattered", "Grounded", "Absorbed", "Locked In"][val - 1] || "Grounded";
 
-            // Slider track background color helper
+            // Dynamic slider track filling background style generator
+            const getSliderStyle = (val, min, max, baseColor) => {
+                const pct = ((val - min) / (max - min)) * 100;
+                return {
+                    background: `linear-gradient(to right, ${baseColor} 0%, ${baseColor} ${pct}%, #e5e7eb ${pct}%, #e5e7eb 100%)`,
+                    height: "8px",
+                    borderRadius: "9999px",
+                    outline: "none",
+                    width: "100%",
+                    color: baseColor
+                };
+            };
+
             const getSliderThumbColor = (val) => {
                 if (val <= 1) return m.calmTeal;
                 if (val <= 2) return m.forest;
@@ -315,7 +365,14 @@
                 return m.darkForest;
             };
 
-            /* STREAMING_CHUNK:Structuring compiled Markdown... */
+            // Retrieve Context Configuration pairs matching currently active tab
+            const getActiveContextPairs = () => {
+                if (state.activeTab === "morning") return morningContextPairs;
+                if (state.activeTab === "afternoon") return afternoonContextPairs;
+                return eveningContextPairs;
+            };
+
+            // RAG-Optimized YAML & Markdown Generator
             const compiledMarkdown = React.useMemo(() => {
                 const formatYamlList = (arr) => arr && arr.length > 0 ? "\n" + arr.map(x => `  - "${x}"`).join("\n") : " []";
                 const formatYamlSymptoms = (symptomObj) => {
@@ -461,7 +518,6 @@
                         </div>
                     </header>
 
-                    {/* STREAMING_CHUNK:Rendering main contents... */}
                     <main style={{ maxWidth: 800, margin: "24px auto 0", padding: "0 16px" }} className="space-y-6">
                         
                         {/* GENERAL TEMPORAL AND ENDOCRINE CLIMATE CARD */}
@@ -564,55 +620,55 @@
                                     </div>
                                 </div>
 
-                                {/* 2. Vitals Stats sliders */}
+                                {/* 2. Vitals Stats sliders with dynamically color-filling tracks */}
                                 <div className="space-y-4">
                                     <h3 style={{ ...textHeaderStyle, fontSize: 15, margin: 0 }}>Vitals and Energy Allocation</h3>
                                     
                                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                                         {/* Energy Slider */}
-                                        <div className="space-y-2 p-3 rounded-lg border" style={{ backgroundColor: m.warmWhite, borderColor: m.stone }}>
+                                        <div className="space-y-2 p-3 rounded-lg border bg-white" style={{ borderColor: m.stone }}>
                                             <div className="flex justify-between items-center text-xs">
                                                 <span className="font-semibold text-slate-500">ENERGY</span>
-                                                <span className="font-bold text-slate-800" style={{ color: getSliderThumbColor(activeData.energy) }}>{activeData.energy}/5</span>
+                                                <span className="font-bold" style={{ color: getSliderThumbColor(activeData.energy) }}>{activeData.energy}/5</span>
                                             </div>
                                             <input 
                                                 type="range" min="1" max="5" 
                                                 value={activeData.energy} 
                                                 onChange={e => updateCheckin(state.activeTab, "energy", Number(e.target.value))}
-                                                className="w-full cursor-pointer"
-                                                style={{ accentColor: getSliderThumbColor(activeData.energy) }}
+                                                style={getSliderStyle(activeData.energy, 1, 5, getSliderThumbColor(activeData.energy))}
+                                                className="w-full"
                                             />
                                             <div className="text-right text-[10px] font-bold text-slate-500 uppercase">{getEnergyLabel(activeData.energy)}</div>
                                         </div>
 
                                         {/* Motivation Slider */}
-                                        <div className="space-y-2 p-3 rounded-lg border" style={{ backgroundColor: m.warmWhite, borderColor: m.stone }}>
+                                        <div className="space-y-2 p-3 rounded-lg border bg-white" style={{ borderColor: m.stone }}>
                                             <div className="flex justify-between items-center text-xs">
                                                 <span className="font-semibold text-slate-500">MOTIVATION</span>
-                                                <span className="font-bold text-slate-800" style={{ color: getSliderThumbColor(activeData.motivation) }}>{activeData.motivation}/5</span>
+                                                <span className="font-bold" style={{ color: getSliderThumbColor(activeData.motivation) }}>{activeData.motivation}/5</span>
                                             </div>
                                             <input 
                                                 type="range" min="1" max="5" 
                                                 value={activeData.motivation} 
                                                 onChange={e => updateCheckin(state.activeTab, "motivation", Number(e.target.value))}
-                                                className="w-full cursor-pointer"
-                                                style={{ accentColor: getSliderThumbColor(activeData.motivation) }}
+                                                style={getSliderStyle(activeData.motivation, 1, 5, getSliderThumbColor(activeData.motivation))}
+                                                className="w-full"
                                             />
                                             <div className="text-right text-[10px] font-bold text-slate-500 uppercase">{getMotivationLabel(activeData.motivation)}</div>
                                         </div>
 
                                         {/* Focus Slider */}
-                                        <div className="space-y-2 p-3 rounded-lg border" style={{ backgroundColor: m.warmWhite, borderColor: m.stone }}>
+                                        <div className="space-y-2 p-3 rounded-lg border bg-white" style={{ borderColor: m.stone }}>
                                             <div className="flex justify-between items-center text-xs">
                                                 <span className="font-semibold text-slate-500">FOCUS</span>
-                                                <span className="font-bold text-slate-800" style={{ color: getSliderThumbColor(activeData.focus) }}>{activeData.focus}/5</span>
+                                                <span className="font-bold" style={{ color: getSliderThumbColor(activeData.focus) }}>{activeData.focus}/5</span>
                                             </div>
                                             <input 
                                                 type="range" min="1" max="5" 
                                                 value={activeData.focus} 
                                                 onChange={e => updateCheckin(state.activeTab, "focus", Number(e.target.value))}
-                                                className="w-full cursor-pointer"
-                                                style={{ accentColor: getSliderThumbColor(activeData.focus) }}
+                                                style={getSliderStyle(activeData.focus, 1, 5, getSliderThumbColor(activeData.focus))}
+                                                className="w-full"
                                             />
                                             <div className="text-right text-[10px] font-bold text-slate-500 uppercase">{getFocusLabel(activeData.focus)}</div>
                                         </div>
@@ -671,7 +727,7 @@
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="flex items-center justify-between">
+                                        <div className="flex items-center justify-between bg-white p-3 rounded-lg border" style={{ borderColor: m.stone }}>
                                             <span className="text-xs font-semibold text-slate-500">Daytime Nap Restored?</span>
                                             <button
                                                 onClick={() => updateCheckin(state.activeTab, "nap", !activeData.nap)}
@@ -703,25 +759,41 @@
                                     />
                                 </div>
 
-                                {/* 5. Daily Transition Context */}
+                                {/* 5. Daily Paired Context Variables (Visually paired Columns) */}
                                 <div className="space-y-3 p-4 rounded-lg border" style={{ backgroundColor: m.warmWhite, borderColor: m.stone }}>
                                     <h3 style={{ ...textHeaderStyle, fontSize: 14, margin: 0 }}>Daily Transition Context</h3>
-                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                                        {contextOptions.map(option => {
-                                            const active = activeData.context ? activeData.context.includes(option.label) : false;
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        {getActiveContextPairs().map((pair, index) => {
+                                            const leftActive = activeData.context ? activeData.context.includes(pair.left) : false;
+                                            const rightActive = activeData.context ? activeData.context.includes(pair.right) : false;
+
                                             return (
-                                                <button
-                                                    key={option.id}
-                                                    onClick={() => toggleArrayItem(state.activeTab, "context", option.label)}
-                                                    className="p-2 text-center text-xs font-semibold border rounded-lg transition-all"
-                                                    style={{
-                                                        borderColor: active ? m.gold : m.stone,
-                                                        backgroundColor: active ? "rgba(186,148,94,0.12)" : "transparent",
-                                                        color: active ? m.darkForest : m.warmGrey
-                                                    }}
-                                                >
-                                                    {option.label}
-                                                </button>
+                                                <div key={index} className="grid grid-cols-2 gap-2 p-2 rounded-lg bg-slate-100 border border-dashed border-slate-300">
+                                                    {/* Left Modifier Option (Usually Friction / High Burden) */}
+                                                    <button
+                                                        onClick={() => selectMutualExclusiveContext(state.activeTab, activeData.context, pair.left, pair.right)}
+                                                        className="py-2.5 px-2 text-center text-xs font-bold border rounded-lg transition-all"
+                                                        style={{
+                                                            borderColor: leftActive ? m.terracotta : "transparent",
+                                                            backgroundColor: leftActive ? "rgba(182,141,118,0.15)" : "transparent",
+                                                            color: leftActive ? m.darkForest : m.warmGrey
+                                                        }}
+                                                    >
+                                                        ⚠️ {pair.left}
+                                                    </button>
+                                                    {/* Right Modifier Option (Usually Restorative / Low Burden) */}
+                                                    <button
+                                                        onClick={() => selectMutualExclusiveContext(state.activeTab, activeData.context, pair.right, pair.left)}
+                                                        className="py-2.5 px-2 text-center text-xs font-bold border rounded-lg transition-all"
+                                                        style={{
+                                                            borderColor: rightActive ? m.forest : "transparent",
+                                                            backgroundColor: rightActive ? "rgba(69,115,93,0.12)" : "transparent",
+                                                            color: rightActive ? m.darkForest : m.warmGrey
+                                                        }}
+                                                    >
+                                                        🍃 {pair.right}
+                                                    </button>
+                                                </div>
                                             );
                                         })}
                                     </div>
@@ -761,7 +833,7 @@
                                                 const value = activeData.physical ? (activeData.physical[sym.id] || 0) : 0;
                                                 if (value === 0) return null;
                                                 return (
-                                                    <div key={sym.id} className="p-3 rounded-lg border bg-white space-y-2 animate-slideDown" style={{ borderColor: m.stone }}>
+                                                    <div key={sym.id} className="p-4 rounded-lg border bg-white space-y-2 animate-slideDown" style={{ borderColor: m.stone }}>
                                                         <div className="flex justify-between items-center text-xs">
                                                             <span className="font-bold text-slate-800 flex items-center gap-1.5">
                                                                 {sym.label} 
@@ -780,8 +852,8 @@
                                                             type="range" min="1" max="5" 
                                                             value={value} 
                                                             onChange={e => setSymptomValue(state.activeTab, "physical", sym.id, Number(e.target.value))}
-                                                            className="w-full cursor-pointer"
-                                                            style={{ accentColor: getSliderThumbColor(value) }}
+                                                            style={getSliderStyle(value, 1, 5, getSliderThumbColor(value))}
+                                                            className="w-full"
                                                         />
                                                     </div>
                                                 );
@@ -820,7 +892,7 @@
                                                 const value = activeData.cognitive ? (activeData.cognitive[sym.id] || 0) : 0;
                                                 if (value === 0) return null;
                                                 return (
-                                                    <div key={sym.id} className="p-3 rounded-lg border bg-white space-y-2 animate-slideDown" style={{ borderColor: m.stone }}>
+                                                    <div key={sym.id} className="p-4 rounded-lg border bg-white space-y-2 animate-slideDown" style={{ borderColor: m.stone }}>
                                                         <div className="flex justify-between items-center text-xs">
                                                             <span className="font-bold text-slate-800 flex items-center gap-1.5">
                                                                 {sym.label}
@@ -839,8 +911,8 @@
                                                             type="range" min="1" max="5" 
                                                             value={value} 
                                                             onChange={e => setSymptomValue(state.activeTab, "cognitive", sym.id, Number(e.target.value))}
-                                                            className="w-full cursor-pointer"
-                                                            style={{ accentColor: getSliderThumbColor(value) }}
+                                                            style={getSliderStyle(value, 1, 5, getSliderThumbColor(value))}
+                                                            className="w-full"
                                                         />
                                                     </div>
                                                 );
@@ -879,7 +951,7 @@
                                                 const value = activeData.emotional ? (activeData.emotional[sym.id] || 0) : 0;
                                                 if (value === 0) return null;
                                                 return (
-                                                    <div key={sym.id} className="p-3 rounded-lg border bg-white space-y-2 animate-slideDown" style={{ borderColor: m.stone }}>
+                                                    <div key={sym.id} className="p-4 rounded-lg border bg-white space-y-2 animate-slideDown" style={{ borderColor: m.stone }}>
                                                         <div className="flex justify-between items-center text-xs">
                                                             <span className="font-bold text-slate-800 flex items-center gap-1.5">
                                                                 {sym.label}
@@ -898,8 +970,8 @@
                                                             type="range" min="1" max="5" 
                                                             value={value} 
                                                             onChange={e => setSymptomValue(state.activeTab, "emotional", sym.id, Number(e.target.value))}
-                                                            className="w-full cursor-pointer"
-                                                            style={{ accentColor: getSliderThumbColor(value) }}
+                                                            style={getSliderStyle(value, 1, 5, getSliderThumbColor(value))}
+                                                            className="w-full"
                                                         />
                                                     </div>
                                                 );
